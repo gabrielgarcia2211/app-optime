@@ -1,0 +1,202 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Productos
+{% endblock %}
+
+
+{% block body %}
+
+	<style>
+		table .col {
+			background-color: rgb(79, 144, 160)
+		}
+		table {
+			font-size: 16px;
+		}
+		.header-products {
+			width: 100%;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+	</style>
+
+	<nav class="navbar navbar-dark bg-primary">
+		<div class="container-fluid">
+			<a class="navbar-brand">Navbar</a>
+			<form class="d-flex" role="search">
+				<input class="form-control me-2" type="search" placeholder="Buscar producto" aria-label="Search">
+				<button class="btn btn-success" type="submit">Buscar</button>
+			</form>
+		</div>
+	</nav>
+
+	<div class="container mt-5">
+
+		<div class="row header-products">
+			<div class="col-md-10">
+				<h3>Listado de productos</h3>
+			</div>
+			<div class="col-md-2" style="padding:10px">
+				<button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#listCategoryModal" style="float:right; margin-left:5px">
+					<i title="Listar categorias" class="fas fa-list"></i>
+				</button>
+				<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal" style="float:right; margin-left:5px">
+					<i title="Añadir producto" class="fa-solid fa-plus"></i>
+				</button>
+				<button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editModal" style="float:right; margin-left:5px">
+					<i title="Editar producto" class="fas fa-edit"></i>
+				</button>
+			</div>
+		</div>
+
+
+		<div class="card">
+			<div class="card-body">
+				<table class="table">
+					<thead>
+						<tr>
+							<th class="col">#</th>
+							<th class="col">Nombre</th>
+							<th class="col">Descripcion</th>
+							<th class="col">Marca</th>
+							<th class="col" style="text-align:center;">Acciones</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for product in products %}
+							<tr>
+								<td>{{ product.code }}</td>
+								<td>{{ product.name }}</td>
+								<td>{{ product.description }}</td>
+								<td>{{ product.brand }}</td>
+								<td style="text-align:center;">
+									<button class="btn btn-danger">
+										<i title="Eliminar producto" class="fas fa-trash"></i>
+									</button>
+								</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<!-- Modal ADD-->
+		<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						...
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+						<button type="button" class="btn btn-primary">Guardar</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Modal EDIT-->
+		<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						...3
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+						<button type="button" class="btn btn-primary">Guardar</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Modal GESTION Category-->
+		<div class="modal fade" id="listCategoryModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h1 class="modal-title fs-5" id="exampleModalLabel">Categorias
+							<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal" data-bs-whatever="@mdo">
+								<i title="Añadir categoria" class="fa-solid fa-plus"></i>
+							</button>
+
+						</h1>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<table class="table">
+							<thead>
+								<tr>
+									<th class="col">#</th>
+									<th class="col">Nombre</th>
+									<th class="col">Activado</th>
+									<th class="col" style="text-align:center;">Acciones</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for category in categorys %}
+									<tr>
+										<td>{{ category.id }}</td>
+										<td>{{ category.name }}</td>
+										<td>{{ category.active }}</td>
+										<td style="text-align:center;">
+											<a onclick="return deleteCategory({{category.id}})" class="btn btn-danger">
+												<i title="Eliminar categoria" class="fas fa-trash"></i>
+											</a>
+										</td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+						<button type="button" class="btn btn-primary">Guardar</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+		<!-- Modal ADD Category-->
+
+		<div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h1 class="modal-title fs-5" id="exampleModalLabel">Nueva Categoria</h1>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<form action="{{ path('create_category')}}" method="post">
+							<div class="mb-3">
+								<label for="nombre" class="col-form-label">Nombre:</label>
+								<input type="text" class="form-control" id="nombre" name="nombre">
+							</div>
+							<div class="mb-3">
+								<label for="activo" class="col-form-label">Activo:</label>
+								<input type="number" class="form-control" id="activo" name="activo"></input>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+							<button type="submit" class="btn btn-primary">Guardar</button>
+						</div>
+					</form>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+</div>{% endblock %}{% block javascripts %}
+<script src="{{ asset('./build/js/main.js') }}" type="text/javascript"></script>{% endblock %}
