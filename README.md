@@ -51,6 +51,9 @@ Esta aplicacion fue realizada en Symfony como framework de Backend con persisten
     ```sh
     composer install
     ```
+     ```sh
+    composer install --ignore-platform-req=ext-gd
+    ```
 - Luego se **Instala/Actualiza** las dependencias npm  en la terminal del proyecto, con el siguiente comando:
     ```sh
     npm install
