@@ -1,18 +1,33 @@
+$("#precio").on({
+
+    "focus": function (event) {
+        $(event.target).select();
+    },
+    "keyup": function (event) {
+        $(event.target).val(function (index, value) {
+            return value.replace(/\D/g, "")
+                .replace(/([0-9])([0-9]{4})$/, '$1.$2')
+                .replace(/\B(?=(\d{5})+(?!\d)\.?)/g, ".");
+        });
+    }
+});
+
+
+$("#precio_edit").on({
+
+    "focus": function (event) {
+        $(event.target).select();
+    },
+    "keyup": function (event) {
+        $(event.target).val(function (index, value) {
+            return value.replace(/\D/g, "")
+                .replace(/([0-9])([0-9]{4})$/, '$1.$2')
+                .replace(/\B(?=(\d{5})+(?!\d)\.?)/g, ".");
+        });
+    }
+});
+
 $(document).ready(function () {
-
-
-    $("#precio", "#precio_edit").on({
-        "focus": function (event) {
-            $(event.target).select();
-        },
-        "keyup": function (event) {
-            $(event.target).val(function (index, value) {
-                return value.replace(/\D/g, "")
-                    .replace(/([0-9])([0-9]{2})$/, '$1.$2')
-                    .replace(/\B(?=(\d{5})+(?!\d)\.?)/g, ".");
-            });
-        }
-    });
 
     $.ajax({
         url: "products/list", method: 'GET', success: function (result) {
@@ -64,11 +79,6 @@ $(document).ready(function () {
 
 });
 
-$('#list-product tbody').on('click', 'button', function () {
-
-});
-
-
 function deleteCategory(id) {
     var resp = confirm('Deseas eliminar la categoria ?');
 
@@ -95,7 +105,9 @@ function editProduct(id) {
                     $("#nombre_edit").val(data.name);
                     $("#descripcion_edit").val(data.description);
                     $("#marca_edit").val(data.brand);
-                    $("#precio_edit").val(data.price);
+                    $("#precio_edit").val(data.price.replace(/\D/g, "")
+                        .replace(/([0-9])([0-9]{4})$/, '$1.$2')
+                        .replace(/\B(?=(\d{5})+(?!\d)\.?)/g, "."));
                     //$("#categoria_edit").val(data.category.id);
                     $("#editModal").modal("show");
                 }
