@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\CategoryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -21,11 +22,15 @@ class Category
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotNull()
+     * @Assert\NotBlank()
      */
     private $name;
 
     /**
      * @ORM\Column(type="boolean")
+     * @Assert\NotNull()
+     * @Assert\NotBlank()
      */
     private $active;
 
@@ -59,7 +64,7 @@ class Category
         return $this->name;
     }
 
-    public function setName(string $name): self
+    public function setName($name): self
     {
         $this->name = $name;
 
@@ -71,7 +76,7 @@ class Category
         return $this->active;
     }
 
-    public function setActive(bool $active): self
+    public function setActive($active): self
     {
         $this->active = $active;
 

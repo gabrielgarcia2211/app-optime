@@ -31,6 +31,25 @@
 		</div>
 	</nav>
 
+	{% for message in app.flashes('success-category') %}
+		<div class="alert alert-success alert-dismissible fade show" role="alert">
+			<strong>Exito!</strong>
+			{{ message }}
+			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div>
+	{% endfor %}
+
+	{% for message in app.flashes('validate-category') %}
+		<div class="alert alert-danger alert-dismissible fade show" role="alert">
+			<strong>Error!</strong>
+			{% if message %}
+				Todos los campos deben estar diligenciados.
+			{% endif %}
+			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div>
+	{% endfor %}
+
+
 	<div class="container mt-5">
 
 		<div class="row header-products">
@@ -161,7 +180,6 @@
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-						<button type="button" class="btn btn-primary">Guardar</button>
 					</div>
 				</div>
 			</div>

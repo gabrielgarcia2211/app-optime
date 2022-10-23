@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use DateTimeImmutable;
 use App\Entity\Category;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
@@ -21,7 +22,7 @@ class CategoryRepository extends ServiceEntityRepository
     private $validator;
     private $manager;
 
-    public function __construct( EntityManagerInterface $manager, ManagerRegistry $registry,  ValidatorInterface $validator)
+    public function __construct(EntityManagerInterface $manager, ManagerRegistry $registry,  ValidatorInterface $validator)
     {
         $this->manager = $manager;
         $this->validator = $validator;
@@ -38,16 +39,19 @@ class CategoryRepository extends ServiceEntityRepository
     public function saveCategory($name, $activate)
     {
         $newCategory = new Category();
-
-
-        $newCategory->setName($name)->setActive($activate);
+        
+        $newCategory->setName($name)
+            ->setActive($activate)
+            ->setCreatedAt(new DateTimeImmutable())
+            ->setUpdatedAt(new DateTimeImmutable());
 
         $errors = $this->validator->validate($newCategory);
 
-        if (count($errors) > 0) {
+        if (count($errors) > 0) {   
             $errorsString = (string) $errors;
-            return ['status' => false, 'response' => $errorsString];
+            return ['status' => false, 'response' => $errors];
         }
+
 
         $this->manager->persist($newCategory);
         $this->manager->flush();

@@ -26,7 +26,7 @@ class CategoryController extends AbstractController
     /**
      * @Route("/category/create", name="create_category", methods={"POST"})
      */
-    public function new(Request $request): JsonResponse
+    public function new(Request $request)
     {
 
         try {
@@ -37,15 +37,16 @@ class CategoryController extends AbstractController
             $response = $this->categoryRepository->saveCategory($name, $activate);
 
             if ($response["status"]) {
-                return new JsonResponse(['status' => 'Categoria creada!'], Response::HTTP_CREATED);
+                $this->addFlash('success-category', 'Categoria creada!');
+                return $this->redirectToRoute('products');
             } else {
-                return new JsonResponse(['status' => 'Ah ocurrido un error', 'response' => $response["response"]], Response::HTTP_CREATED);
+                $this->addFlash('validate-category', $response["response"]);
+                return $this->redirectToRoute('products');
             }
         } catch (\Exception $e) {
-            $this->logger->critical('Ah ocurrido un error - ProductsController/new!', [
+            $this->logger->critical('Ah ocurrido un error - CategoryController/new!', [
                 'cause' => $e->getMessage(),
             ]);
-            return new JsonResponse($e->getMessage(), Response::HTTP_CONFLICT);
         }
     }
     /**
@@ -57,16 +58,12 @@ class CategoryController extends AbstractController
             $categoryDelete = $this->getDoctrine()->getManager();
             $categoryDelete->remove($id);
             $categoryDelete->flush();
-            return new Response(
-                true,
-                Response::HTTP_OK
-            );
+            $this->addFlash('success-category', 'Categoria elimnada!');
+            return $this->redirectToRoute('products');
         } catch (\Exception $e) {
             $this->logger->critical('Ah ocurrido un error - CategoryController/delete!', [
                 'cause' => $e->getMessage(),
             ]);
-
-            return new JsonResponse($e->getMessage(), Response::HTTP_CONFLICT);
         }
     }
 }
