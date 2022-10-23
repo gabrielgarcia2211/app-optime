@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use DateTimeImmutable;
 use App\Entity\Product;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
@@ -34,24 +35,16 @@ class ProductRepository extends ServiceEntityRepository
     }
 
 
-    public function remove(Product $entity, bool $flush = false): void
-    {
-        $this->getEntityManager()->remove($entity);
-
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
-    }
-
     public function allProducts()
     {
         $productsList = $this->findAll();
         return $productsList;
     }
 
-    public function saveProduct($code, $name, $description, $brand, $category)
+    public function saveProduct($code, $name, $description, $brand, $preci, $category)
     {
         $newProduct = new Product();
+        $sendErros = [];
 
         $category = (object) $this->categoryRepository->findBy(
             ['id' => $category],
@@ -62,15 +55,39 @@ class ProductRepository extends ServiceEntityRepository
             ->setName($name)
             ->setDescription($description)
             ->setBrand($brand)
-            ->setCategory($category);
+            ->setCategory($category)
+            ->setPrice($preci)
+            ->setCreatedAt(new DateTimeImmutable())
+            ->setUpdatedAt(new DateTimeImmutable());
 
         $errors = $this->validator->validate($newProduct);
 
         if (count($errors) > 0) {
-            $errorsString = (string) $errors;
-            return ['status' => false, 'response' => $errorsString];
+            foreach ($errors as $key => $error) {
+                $sendErros[$key]["key"] = $error->getPropertyPath();
+                $sendErros[$key]["value"] = (!empty($error->getConstraint()->message)) ? $error->getConstraint()->message : $error->getMessage();
+            }
+
+            return ['status' => false, 'response' => $sendErros];
         }
 
+        $this->manager->persist($newProduct);
+        $this->manager->flush();
+
+        return ['status' => true, 'response' => ""];
+    }
+
+    public function updateProduct(Product $newProduct)
+    {
+        $errors = $this->validator->validate($newProduct);
+        if (count($errors) > 0) {
+            foreach ($errors as $key => $error) {
+                $sendErros[$key]["key"] = $error->getPropertyPath();
+                $sendErros[$key]["value"] = (!empty($error->getConstraint()->message)) ? $error->getConstraint()->message : $error->getMessage();
+            }
+
+            return ['status' => false, 'response' => $sendErros];
+        }
         $this->manager->persist($newProduct);
         $this->manager->flush();
 

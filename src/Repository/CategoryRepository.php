@@ -36,10 +36,19 @@ class CategoryRepository extends ServiceEntityRepository
         return $categoriesList;
     }
 
+    public function remove(Category $entity, bool $flush = false): void
+    {
+        $this->getEntityManager()->remove($entity);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
     public function saveCategory($name, $activate)
     {
         $newCategory = new Category();
-        
+
         $newCategory->setName($name)
             ->setActive($activate)
             ->setCreatedAt(new DateTimeImmutable())
@@ -47,7 +56,7 @@ class CategoryRepository extends ServiceEntityRepository
 
         $errors = $this->validator->validate($newCategory);
 
-        if (count($errors) > 0) {   
+        if (count($errors) > 0) {
             $errorsString = (string) $errors;
             return ['status' => false, 'response' => $errors];
         }
