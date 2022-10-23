@@ -23,11 +23,7 @@
 
 	<nav class="navbar navbar-dark bg-primary">
 		<div class="container-fluid">
-			<a class="navbar-brand">Navbar</a>
-			<form class="d-flex" role="search">
-				<input class="form-control me-2" type="search" placeholder="Buscar producto" aria-label="Search">
-				<button class="btn btn-success" type="submit">Buscar</button>
-			</form>
+			<a class="navbar-brand">Optime</a>
 		</div>
 	</nav>
 
@@ -79,14 +75,18 @@
 				<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal" style="float:right; margin-left:5px">
 					<i title="Añadir producto" class="fa-solid fa-plus"></i>
 				</button>
+				<a href="{{ path('report_excel_product')}}" type="button" class="btn btn-success" style="float:right; margin-left:5px; width:45%">
+					<i title="Generar reporte" class="far fa-file-excel"></i>
+				</a>
 			</div>
 		</div>
 
 		<div class="card">
 			<div class="card-body">
-				<table class="table">
+				<table class="table list-product mt-5 pt-1">
 					<thead>
 						<tr>
+							<th class="col">Id</th>
 							<th class="col">#</th>
 							<th class="col">Nombre</th>
 							<th class="col">Descripcion</th>
@@ -96,27 +96,6 @@
 							<th class="col" style="text-align:center;">Acciones</th>
 						</tr>
 					</thead>
-					<tbody>
-						{% for product in products %}
-							<tr>
-								<td>{{ product.code }}</td>
-								<td>{{ product.name }}</td>
-								<td>{{ product.description }}</td>
-								<td>{{ product.brand }}</td>
-								<td>$
-									{{  product.price|format_currency('EUR') }}</td>
-								<td>{{ product.category.name }}</td>
-								<td style="text-align:center;">
-									<button onclick="return deleteProduct({{product.id}})" class="btn btn-danger">
-										<i title="Eliminar producto" class="fas fa-trash"></i>
-									</button>
-									<button onclick="return editProduct({{product.id}})" type="button" class="btn btn-warning" data-bs-toggle="modal" >
-										<i title="Editar producto" class="fas fa-edit"></i>
-									</button>
-								</td>
-							</tr>
-						{% endfor %}
-					</tbody>
 				</table>
 			</div>
 		</div>

@@ -6,13 +6,17 @@ use App\Entity\Product;
 use Psr\Log\LoggerInterface;
 use App\Repository\ProductRepository;
 use App\Repository\CategoryRepository;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Component\HttpFoundation\Request;
 use Omines\DataTablesBundle\Column\TextColumn;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+
 
 class ProductsController extends AbstractController
 {
@@ -30,19 +34,42 @@ class ProductsController extends AbstractController
     }
 
     /**
-     * @Route("/products", name="products")
+     * @Route("/products", name="products", methods={"GET"})
      */
-    public function index(): Response
+    public function index()
     {
-        # listar productos
-        $products = $this->productRepository->allProducts();
-        # listar categorias
-        $categorys = $this->categoryRepository->allCategories();
 
+        $categorys = $this->categoryRepository->allCategories();
         return $this->render('productos/index.html.twig', [
-            'products' => $products,
             'categorys' => $categorys,
         ]);
+    }
+
+    /**
+     * @Route("/products/list", name="list_products", methods={"GET"})
+     */
+    public function listProducts()
+    {
+
+        $products = $this->productRepository->allProducts();
+
+        # mapeamos la informacion
+        $jsonData = array();
+        $idx = 0;
+        foreach ($products as $p) {
+            $temp = array(
+                'id' => $p->getId(),
+                'code' => $p->getCode(),
+                'name' => $p->getName(),
+                'description' => $p->getDescription(),
+                'brand' => $p->getBrand(),
+                'category' => $p->getCategory()->getName(),
+                'price' => $p->getPrice(),
+            );
+            $jsonData[$idx++] = $temp;
+        }
+
+        return new JsonResponse($jsonData);
     }
 
     /**
@@ -86,12 +113,11 @@ class ProductsController extends AbstractController
      */
     public function edit($id): JsonResponse
     {
-
         try {
 
-            #buscamos el resultado
+            #buscamos el resultado de producto
             $product = $this->productRepository->findBy(
-                ['id' => 7],
+                ['id' => $id],
             );
 
             # mapeamos la informacion
@@ -110,9 +136,6 @@ class ProductsController extends AbstractController
                 $jsonData[$idx++] = $temp;
             }
             return new JsonResponse($jsonData);
-            /* return $this->render('productos/index.html.twig', [
-                'edit_product' => $product,
-            ]); */
         } catch (\Exception $e) {
             $this->logger->critical('Ah ocurrido un error - ProductsController/edit!', [
                 'cause' => $e->getMessage(),
@@ -127,7 +150,6 @@ class ProductsController extends AbstractController
     {
 
         try {
-
 
             $id = $request->request->get('id_edit');
             $code = $request->request->get('codigo_edit');
@@ -185,5 +207,73 @@ class ProductsController extends AbstractController
                 'cause' => $e->getMessage(),
             ]);
         }
+    }
+
+    /**
+     * @Route("/products/report-excel/", name="report_excel_product", methods={"GET"})
+     */
+    public function reporteExcel()
+    {
+        $spreadsheet = new Spreadsheet();
+
+        /* @var $sheet \PhpOffice\PhpSpreadsheet\Writer\Xlsx\Worksheet */
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setCellValue('A1', 'ID');
+        $sheet->setCellValue('B1', 'Codigo');
+        $sheet->setCellValue('C1', 'Nombre');
+        $sheet->setCellValue('D1', 'Descripcion');
+        $sheet->setCellValue('E1', 'Marca');
+        $sheet->setCellValue('F1', 'Categoria');
+        $sheet->setCellValue('G1', 'Precio');
+        $sheet->setCellValue('H1', 'Fecha Creacion');
+
+
+        $products = $this->getDoctrine()
+            ->getRepository(Product::class)
+            ->findAll();
+
+
+        $sheet = $spreadsheet->getActiveSheet();
+
+        foreach ($products as $key => $product) {
+            $key = $key + 2;
+            $sheet->setCellValue('A' . $key, $product->getId());
+            $sheet->setCellValue('B' . $key, $product->getCode());
+            $sheet->setCellValue('C' . $key, $product->getName());
+            $sheet->setCellValue('D' . $key, $product->getDescription());
+            $sheet->setCellValue('E' . $key, $product->getBrand());
+            $sheet->setCellValue('F' . $key, $product->getCategory()->getName());
+            $sheet->setCellValue('G' . $key, $product->getPrice());
+            $sheet->setCellValue('H' . $key, $product->getCreatedAt());
+        }
+        
+        $spreadsheet->getActiveSheet()
+        ->getStyle('A1:H1')
+        ->getFill()
+        ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+        ->getStartColor()
+        ->setARGB('13A811');
+
+
+        $spreadsheet->getActiveSheet()
+        ->getStyle('A1:H1')
+        ->getFont()
+        ->getColor()
+        ->setARGB(\PhpOffice\PhpSpreadsheet\Style\Color::COLOR_WHITE);
+
+        $sheet->setTitle("Solicitudes Electrónicas");
+
+        // Create your Office 2007 Excel (XLSX Format)
+        $writer = new Xlsx($spreadsheet);
+
+        // Create a Temporary file in the system
+        $fileName = 'report_products.xlsx';
+        $temp_file = tempnam(sys_get_temp_dir(), $fileName);
+
+        // Create the excel file in the tmp directory of the system
+        $writer->save($temp_file);
+
+        // Return the excel file as an attachment
+        return $this->file($temp_file, $fileName, ResponseHeaderBag::DISPOSITION_INLINE);
     }
 }

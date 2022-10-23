@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@babel/core": "^7.19.6",
-    "bootstrap": "^5.2.2"
+    "bootstrap": "^5.2.2",
+    "datatables.net-bs4": "^1.12.1"
   }
 }
