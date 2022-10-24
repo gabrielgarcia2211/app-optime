@@ -67,6 +67,10 @@ Esta aplicacion fue realizada en Symfony como framework de Backend con persisten
     ```sh
     DATABASE_URL=mysql://root:@127.0.0.1:3306/{name_database}?serverVersion=8&charset=utf8mb4
     ```
+- Luego corremos las migraciones:
+    ```sh
+    php bin/console doctrine:migrations:migrate
+    ```
 - Despues abrimos nuestro navegador web, en la ruta:
     ```bash
     http://localhost/optime/public/products
